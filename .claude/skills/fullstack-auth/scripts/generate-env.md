@@ -1,0 +1,378 @@
+# Generate Environment Variables
+
+## Overview
+
+This script generates environment variable templates for the fullstack auth system.
+
+## Quick Generate
+
+### Generate Secret
+
+```bash
+# Using OpenSSL (recommended)
+openssl rand -base64 32
+
+# Using Node.js
+node -e "console.log(require('crypto').randomBytes(32).toString('base64'))"
+
+# Using Python
+python -c "import secrets; print(secrets.token_urlsafe(32))"
+```
+
+## Environment Templates
+
+### Next.js (.env.local)
+
+```bash
+# ===========================================
+# Next.js Environment Variables
+# Copy to .env.local and fill in values
+# ===========================================
+
+# App URL
+NEXT_PUBLIC_APP_URL="http://localhost:3000"
+
+# Better Auth Secret (REQUIRED)
+# Generate with: openssl rand -base64 32
+BETTER_AUTH_SECRET=""
+
+# Database - Neon PostgreSQL (REQUIRED)
+# Get from Neon dashboard → Connection Details
+DATABASE_URL=""
+
+# ===========================================
+# OAuth Providers (Optional)
+# ===========================================
+
+# GitHub OAuth
+# Create at: https://github.com/settings/developers
+# Callback URL: http://localhost:3000/api/auth/callback/github
+GITHUB_ID=""
+GITHUB_SECRET=""
+
+# Google OAuth
+# Create at: https://console.cloud.google.com/apis/credentials
+# Callback URL: http://localhost:3000/api/auth/callback/google
+GOOGLE_ID=""
+GOOGLE_SECRET=""
+
+# Discord OAuth
+# Create at: https://discord.com/developers/applications
+# Callback URL: http://localhost:3000/api/auth/callback/discord
+DISCORD_ID=""
+DISCORD_SECRET=""
+
+# Microsoft/Azure OAuth
+# Create at: https://portal.azure.com → App registrations
+# Callback URL: http://localhost:3000/api/auth/callback/microsoft
+MICROSOFT_ID=""
+MICROSOFT_SECRET=""
+MICROSOFT_TENANT_ID=""
+
+# ===========================================
+# Email (Optional - for email verification)
+# ===========================================
+
+# Resend
+RESEND_API_KEY=""
+
+# Or SMTP
+SMTP_HOST=""
+SMTP_PORT="587"
+SMTP_USER=""
+SMTP_PASSWORD=""
+SMTP_FROM=""
+```
+
+### FastAPI (.env)
+
+```bash
+# ===========================================
+# FastAPI Environment Variables
+# Copy to .env and fill in values
+# ===========================================
+
+# Database - Neon PostgreSQL (REQUIRED)
+# Pooled connection (for app queries)
+DATABASE_URL=""
+
+# Direct connection (for migrations)
+DIRECT_URL=""
+
+# Auth Configuration (REQUIRED)
+# MUST match BETTER_AUTH_SECRET from Next.js
+BETTER_AUTH_SECRET=""
+JWT_ALGORITHM="HS256"
+ACCESS_TOKEN_EXPIRE_MINUTES="30"
+REFRESH_TOKEN_EXPIRE_DAYS="7"
+
+# CORS (REQUIRED)
+FRONTEND_URL="http://localhost:3000"
+
+# App Settings
+DEBUG="true"
+APP_NAME="FastAPI Backend"
+
+# ===========================================
+# Optional Settings
+# ===========================================
+
+# Rate Limiting
+RATE_LIMIT_PER_MINUTE="60"
+
+# Logging
+LOG_LEVEL="INFO"
+```
+
+### Production (.env.production)
+
+```bash
+# ===========================================
+# Production Environment Variables
+# ===========================================
+
+# URLs
+NEXT_PUBLIC_APP_URL="https://yourdomain.com"
+FRONTEND_URL="https://yourdomain.com"
+
+# Database (use pooled connection)
+DATABASE_URL="postgresql://user:pass@ep-xxx-pooler.region.aws.neon.tech/dbname?sslmode=require"
+DIRECT_URL="postgresql://user:pass@ep-xxx.region.aws.neon.tech/dbname?sslmode=require"
+
+# Auth (MUST be same in both services)
+BETTER_AUTH_SECRET="production-secret-here"
+JWT_ALGORITHM="HS256"
+ACCESS_TOKEN_EXPIRE_MINUTES="15"
+REFRESH_TOKEN_EXPIRE_DAYS="7"
+
+# OAuth (update callback URLs to production domain)
+GITHUB_ID=""
+GITHUB_SECRET=""
+GOOGLE_ID=""
+GOOGLE_SECRET=""
+
+# App
+DEBUG="false"
+LOG_LEVEL="WARNING"
+```
+
+## Generator Script
+
+### Node.js Generator
+
+```javascript
+// scripts/generate-env.js
+const crypto = require("crypto")
+const fs = require("fs")
+const readline = require("readline")
+
+const rl = readline.createInterface({
+  input: process.stdin,
+  output: process.stdout,
+})
+
+function question(prompt) {
+  return new Promise((resolve) => {
+    rl.question(prompt, resolve)
+  })
+}
+
+async function generateEnv() {
+  console.log("🔐 Environment Variable Generator\n")
+
+  const secret = crypto.randomBytes(32).toString("base64")
+  console.log(`Generated BETTER_AUTH_SECRET: ${secret}\n`)
+
+  const databaseUrl = await question("Enter DATABASE_URL (Neon): ")
+  const directUrl = await question("Enter DIRECT_URL (Neon, optional): ")
+  const appUrl = await question("App URL [http://localhost:3000]: ")
+
+  const useGithub = await question("Use GitHub OAuth? (y/n): ")
+  let githubId = ""
+  let githubSecret = ""
+  if (useGithub.toLowerCase() === "y") {
+    githubId = await question("GitHub Client ID: ")
+    githubSecret = await question("GitHub Client Secret: ")
+  }
+
+  const useGoogle = await question("Use Google OAuth? (y/n): ")
+  let googleId = ""
+  let googleSecret = ""
+  if (useGoogle.toLowerCase() === "y") {
+    googleId = await question("Google Client ID: ")
+    googleSecret = await question("Google Client Secret: ")
+  }
+
+  // Generate Next.js .env.local
+  const nextEnv = `# Generated by env generator
+NEXT_PUBLIC_APP_URL="${appUrl || "http://localhost:3000"}"
+BETTER_AUTH_SECRET="${secret}"
+DATABASE_URL="${databaseUrl}"
+${githubId ? `GITHUB_ID="${githubId}"` : "# GITHUB_ID="}
+${githubSecret ? `GITHUB_SECRET="${githubSecret}"` : "# GITHUB_SECRET="}
+${googleId ? `GOOGLE_ID="${googleId}"` : "# GOOGLE_ID="}
+${googleSecret ? `GOOGLE_SECRET="${googleSecret}"` : "# GOOGLE_SECRET="}
+`
+
+  // Generate FastAPI .env
+  const fastapiEnv = `# Generated by env generator
+DATABASE_URL="${databaseUrl.replace("postgresql://", "postgresql+asyncpg://")}"
+DIRECT_URL="${directUrl || databaseUrl}"
+BETTER_AUTH_SECRET="${secret}"
+JWT_ALGORITHM="HS256"
+ACCESS_TOKEN_EXPIRE_MINUTES="30"
+FRONTEND_URL="${appUrl || "http://localhost:3000"}"
+DEBUG="true"
+`
+
+  console.log("\n--- Next.js .env.local ---")
+  console.log(nextEnv)
+
+  console.log("\n--- FastAPI .env ---")
+  console.log(fastapiEnv)
+
+  const save = await question("\nSave to files? (y/n): ")
+  if (save.toLowerCase() === "y") {
+    fs.writeFileSync(".env.local", nextEnv)
+    fs.writeFileSync("backend/.env", fastapiEnv)
+    console.log("✅ Files saved!")
+  }
+
+  rl.close()
+}
+
+generateEnv().catch(console.error)
+```
+
+### Python Generator
+
+```python
+# scripts/generate_env.py
+import secrets
+import sys
+
+
+def generate_secret() -> str:
+    """Generate a secure random secret."""
+    return secrets.token_urlsafe(32)
+
+
+def generate_nextjs_env(
+    database_url: str,
+    secret: str,
+    app_url: str = "http://localhost:3000",
+    github_id: str = "",
+    github_secret: str = "",
+    google_id: str = "",
+    google_secret: str = "",
+) -> str:
+    """Generate Next.js .env.local content."""
+    return f"""# Generated by env generator
+NEXT_PUBLIC_APP_URL="{app_url}"
+BETTER_AUTH_SECRET="{secret}"
+DATABASE_URL="{database_url}"
+{"GITHUB_ID=" + f'"{github_id}"' if github_id else "# GITHUB_ID="}
+{"GITHUB_SECRET=" + f'"{github_secret}"' if github_secret else "# GITHUB_SECRET="}
+{"GOOGLE_ID=" + f'"{google_id}"' if google_id else "# GOOGLE_ID="}
+{"GOOGLE_SECRET=" + f'"{google_secret}"' if google_secret else "# GOOGLE_SECRET="}
+"""
+
+
+def generate_fastapi_env(
+    database_url: str,
+    secret: str,
+    direct_url: str = "",
+    frontend_url: str = "http://localhost:3000",
+) -> str:
+    """Generate FastAPI .env content."""
+    # Convert to asyncpg URL
+    async_url = database_url.replace("postgresql://", "postgresql+asyncpg://")
+    async_url = async_url.replace("postgres://", "postgresql+asyncpg://")
+
+    return f"""# Generated by env generator
+DATABASE_URL="{async_url}"
+DIRECT_URL="{direct_url or database_url}"
+BETTER_AUTH_SECRET="{secret}"
+JWT_ALGORITHM="HS256"
+ACCESS_TOKEN_EXPIRE_MINUTES="30"
+REFRESH_TOKEN_EXPIRE_DAYS="7"
+FRONTEND_URL="{frontend_url}"
+DEBUG="true"
+"""
+
+
+def main():
+    print("🔐 Environment Variable Generator\n")
+
+    secret = generate_secret()
+    print(f"Generated secret: {secret}\n")
+
+    database_url = input("DATABASE_URL (Neon): ").strip()
+    if not database_url:
+        print("ERROR: DATABASE_URL is required")
+        sys.exit(1)
+
+    direct_url = input("DIRECT_URL (optional): ").strip()
+    app_url = input("App URL [http://localhost:3000]: ").strip() or "http://localhost:3000"
+
+    github_id = ""
+    github_secret = ""
+    if input("Use GitHub OAuth? (y/n): ").lower() == "y":
+        github_id = input("GitHub Client ID: ").strip()
+        github_secret = input("GitHub Client Secret: ").strip()
+
+    google_id = ""
+    google_secret = ""
+    if input("Use Google OAuth? (y/n): ").lower() == "y":
+        google_id = input("Google Client ID: ").strip()
+        google_secret = input("Google Client Secret: ").strip()
+
+    nextjs_env = generate_nextjs_env(
+        database_url, secret, app_url,
+        github_id, github_secret, google_id, google_secret
+    )
+    fastapi_env = generate_fastapi_env(
+        database_url, secret, direct_url, app_url
+    )
+
+    print("\n--- Next.js .env.local ---")
+    print(nextjs_env)
+
+    print("\n--- FastAPI .env ---")
+    print(fastapi_env)
+
+    if input("\nSave to files? (y/n): ").lower() == "y":
+        with open(".env.local", "w") as f:
+            f.write(nextjs_env)
+        with open("backend/.env", "w") as f:
+            f.write(fastapi_env)
+        print("✅ Files saved!")
+
+
+if __name__ == "__main__":
+    main()
+```
+
+## Security Checklist
+
+- [ ] Never commit .env files to git
+- [ ] Add `.env*` to `.gitignore`
+- [ ] Use different secrets for dev/staging/production
+- [ ] Rotate secrets periodically
+- [ ] Use environment-specific OAuth apps
+- [ ] Store production secrets in secure vault (Vercel, AWS Secrets Manager, etc.)
+
+## .gitignore Template
+
+```gitignore
+# Environment variables
+.env
+.env.local
+.env.*.local
+.env.development
+.env.production
+
+# Don't ignore examples
+!.env.example
+!.env.local.example
+```
