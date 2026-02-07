@@ -1,0 +1,20 @@
+# Backend Todo API Dependencies - LOCAL TESTING VERSION
+# Uses SQLite instead of PostgreSQL for easier local testing
+
+# Web Framework
+fastapi==0.115.6
+uvicorn[standard]==0.34.0
+
+# Database & ORM
+sqlmodel==0.0.24
+# psycopg[binary]==3.2.3  # Skipped for local testing - using SQLite
+
+# Data Validation
+pydantic==2.10.6
+pydantic-settings==2.7.1
+
+# Authentication
+PyJWT==2.10.1
+
+# Utilities
+python-multipart==0.0.20

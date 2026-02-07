@@ -46,7 +46,19 @@
       "Bash(timeout 8 uvicorn:*)",
       "Bash(npm run dev:*)",
       "Bash(npx tsc:*)",
-      "Bash(node scripts/init-better-auth.mjs:*)"
+      "Bash(node scripts/init-better-auth.mjs:*)",
+      "Bash(powershell -ExecutionPolicy Bypass -File:*)",
+      "Bash(timeout 10 tail:*)",
+      "Skill(fastapi-pro)",
+      "Bash(if not exist backend mkdir backend)",
+      "Bash(if not exist backendapp mkdir backendapp)",
+      "Bash(if not exist backendapproutes mkdir backendapproutes)",
+      "Bash(if not exist backendapputils mkdir backendapputils)",
+      "Bash(if not exist backendtests mkdir backendtests)",
+      "Skill(neon-db-pro)",
+      "Bash(ConvertFrom-Json)",
+      "Bash(Select-Object -ExpandProperty FEATURE_DIR)",
+      "Bash(bash:*)"
     ]
   }
 }
