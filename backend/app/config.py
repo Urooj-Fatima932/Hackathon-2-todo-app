@@ -5,15 +5,20 @@ import json
 
 class Settings(BaseSettings):
     """Application configuration settings loaded from environment variables."""
-    
+
     # Database
     database_url: str
-    
+
+    # JWT Configuration
+    jwt_secret: str
+    jwt_algorithm: str = "HS256"
+    access_token_expire_minutes: int = 1440  # 24 hours
+
     # API Configuration
     api_host: str = "0.0.0.0"
     api_port: int = 8000
     debug: bool = False
-    
+
     # CORS
     cors_origins: str = '["http://localhost:3000"]'
     

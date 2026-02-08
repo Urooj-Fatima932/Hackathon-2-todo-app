@@ -58,7 +58,16 @@
       "Skill(neon-db-pro)",
       "Bash(ConvertFrom-Json)",
       "Bash(Select-Object -ExpandProperty FEATURE_DIR)",
-      "Bash(bash:*)"
+      "Bash(bash:*)",
+      "Bash(powershell.exe -ExecutionPolicy Bypass -File .specify/scripts/powershell/setup-plan.ps1 -Json)",
+      "WebFetch(domain:www.better-auth.com)",
+      "WebFetch(domain:pyjwt.readthedocs.io)",
+      "WebFetch(domain:sqlmodel.tiangolo.com)",
+      "Bash(if [ -d \"specs/003-better-auth-integration/checklists\" ])",
+      "Bash(then find specs/003-better-auth-integration/checklists -name \"*.md\" -type f)",
+      "Bash(else echo \"No checklists directory\")",
+      "Bash(fi)",
+      "Bash(git add:*)"
     ]
   }
 }

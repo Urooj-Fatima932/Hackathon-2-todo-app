@@ -6,6 +6,7 @@ from app.config import settings
 from app.database import engine
 from app.models import SQLModel
 from app.routes import tasks
+from app.routes import auth
 from app.utils.exceptions import http_exception_handler, general_exception_handler
 
 
@@ -41,6 +42,7 @@ app.add_exception_handler(HTTPException, http_exception_handler)
 app.add_exception_handler(Exception, general_exception_handler)
 
 # Include routers
+app.include_router(auth.router)
 app.include_router(tasks.router)
 
 
