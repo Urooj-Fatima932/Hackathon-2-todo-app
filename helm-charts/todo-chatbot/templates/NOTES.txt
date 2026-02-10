@@ -1,0 +1,24 @@
+Thank you for installing {{ .Chart.Name }}.
+
+Your release is named {{ .Release.Name }}.
+
+To learn more about the release, try:
+
+  $ helm status {{ .Release.Name }}
+  $ helm get all {{ .Release.Name }}
+
+To access the frontend application:
+
+  # Get the frontend URL
+  export FRONTEND_POD_NAME=$(kubectl get pods --namespace {{ .Release.Namespace }} -l "app.kubernetes.io/name={{ include "todo-chatbot.name" . }},app.kubernetes.io/component=frontend,app.kubernetes.io/instance={{ .Release.Name }}" -o jsonpath="{.items[0].metadata.name}")
+  export FRONTEND_PORT=$(kubectl get svc --namespace {{ .Release.Namespace }} {{ include "todo-chatbot.frontend.fullname" . }} -o jsonpath="{.spec.ports[0].port}")
+  echo "Visit http://127.0.0.1:8080 to use your frontend"
+  kubectl port-forward --namespace {{ .Release.Namespace }} $FRONTEND_POD_NAME 8080:$FRONTEND_PORT
+
+To access the backend API:
+
+  # Get the backend URL
+  export BACKEND_POD_NAME=$(kubectl get pods --namespace {{ .Release.Namespace }} -l "app.kubernetes.io/name={{ include "todo-chatbot.name" . }},app.kubernetes.io/component=backend,app.kubernetes.io/instance={{ .Release.Name }}" -o jsonpath="{.items[0].metadata.name}")
+  export BACKEND_PORT=$(kubectl get svc --namespace {{ .Release.Namespace }} {{ include "todo-chatbot.backend.fullname" . }} -o jsonpath="{.spec.ports[0].port}")
+  echo "Visit http://127.0.0.1:8000 to access your backend API"
+  kubectl port-forward --namespace {{ .Release.Namespace }} $BACKEND_POD_NAME 8000:$BACKEND_PORT

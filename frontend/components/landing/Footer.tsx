@@ -11,8 +11,8 @@ export function Footer() {
           {/* Brand */}
           <div className="space-y-4">
             <Link href="/" className="flex items-center gap-2 font-semibold text-xl">
-              <CheckSquare className="h-6 w-6" />
-              <span>Todo App</span>
+              <CheckSquare className="h-6 w-6 text-violet-600 dark:text-violet-400" />
+              <span className="bg-gradient-to-r from-violet-600 to-fuchsia-600 dark:from-violet-400 dark:to-fuchsia-400 bg-clip-text text-transparent">Todo App</span>
             </Link>
             <p className="text-sm text-muted-foreground max-w-xs">
               The simple and beautiful way to organize your tasks and boost your productivity.

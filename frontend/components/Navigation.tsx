@@ -19,10 +19,10 @@ export function Navigation() {
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex h-16 items-center justify-between">
           <Link href="/" className="flex items-center gap-2 font-semibold text-xl group">
-            <div className="p-1.5 rounded-lg bg-gradient-to-br from-primary/20 to-primary/10 group-hover:from-primary/30 group-hover:to-primary/20 transition-all">
-              <CheckSquare className="h-6 w-6 text-primary" />
+            <div className="p-1.5 rounded-lg bg-gradient-to-br from-violet-500/20 to-fuchsia-500/10 group-hover:from-violet-500/30 group-hover:to-fuchsia-500/20 transition-all">
+              <CheckSquare className="h-6 w-6 text-violet-600 dark:text-violet-400" />
             </div>
-            <span className="bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
+            <span className="bg-gradient-to-r from-violet-600 to-fuchsia-600 dark:from-violet-400 dark:to-fuchsia-400 bg-clip-text text-transparent">
               Todo App
             </span>
           </Link>

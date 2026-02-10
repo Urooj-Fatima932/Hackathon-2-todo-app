@@ -4,6 +4,7 @@ import { Toaster } from "react-hot-toast";
 import { Navigation } from "@/components/Navigation";
 import { ThemeProvider } from "@/components/theme-provider";
 import { AuthProvider } from "@/lib/auth/context";
+import { ChatProvider } from "@/components/chat";
 import "./globals.css";
 
 const inter = Inter({ subsets: ["latin"] });
@@ -31,9 +32,11 @@ export default function RootLayout({
             enableSystem
             disableTransitionOnChange
           >
-            <Navigation />
-            <main className="min-h-screen">{children}</main>
-            <Toaster position="top-right" />
+            <ChatProvider>
+              <Navigation />
+              <main className="min-h-screen">{children}</main>
+              <Toaster position="top-right" />
+            </ChatProvider>
           </ThemeProvider>
         </AuthProvider>
       </body>

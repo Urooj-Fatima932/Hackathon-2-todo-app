@@ -12,10 +12,10 @@ export function Hero() {
     <section className="relative min-h-[calc(100vh-4rem)] flex flex-col mt-[10px] overflow-hidden">
       {/* Animated background */}
       <div className="absolute inset-0 -z-10">
-        <div className="absolute inset-0 bg-[linear-gradient(to_right,#8080800a_1px,transparent_1px),linear-gradient(to_bottom,#8080800a_1px,transparent_1px)] bg-[size:14px_24px]" />
-        <div className="absolute left-0 right-0 top-0 -z-10 m-auto h-[310px] w-[310px] rounded-full bg-primary/20 opacity-20 blur-[100px]" />
-        <div className="absolute right-1/4 top-1/4 -z-10 h-[200px] w-[200px] rounded-full bg-violet-500/20 opacity-30 blur-[80px]" />
-        <div className="absolute left-1/4 bottom-1/4 -z-10 h-[250px] w-[250px] rounded-full bg-blue-500/20 opacity-30 blur-[80px]" />
+        <div className="absolute inset-0 bg-[linear-gradient(to_right,#8080800a_1px,transparent_1px),linear-gradient(to_bottom,#8080800a_1px,transparent_1px)] bg-[size:24px_24px]" />
+        <div className="absolute left-1/2 -translate-x-1/2 top-0 -z-10 h-[400px] w-[600px] rounded-full bg-gradient-to-r from-violet-500/30 via-fuchsia-500/20 to-pink-500/30 opacity-40 blur-[100px] animate-pulse" />
+        <div className="absolute right-0 top-1/3 -z-10 h-[300px] w-[300px] rounded-full bg-gradient-to-br from-blue-500/25 to-cyan-500/20 opacity-50 blur-[80px]" />
+        <div className="absolute left-0 bottom-1/4 -z-10 h-[250px] w-[350px] rounded-full bg-gradient-to-tr from-rose-500/20 to-orange-500/15 opacity-40 blur-[80px]" />
       </div>
 
       {/* Main Content */}
@@ -32,11 +32,11 @@ export function Hero() {
 
               {/* Headline */}
               <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight leading-[1.1]">
-                <span className="bg-gradient-to-r from-foreground via-foreground to-foreground/70 bg-clip-text text-transparent">
+                <span className="bg-gradient-to-r from-foreground via-foreground/90 to-foreground/70 bg-clip-text text-transparent">
                   Focus on what
                 </span>
                 <br />
-                <span className="bg-gradient-to-r from-primary via-violet-500 to-primary bg-clip-text text-transparent">
+                <span className="bg-gradient-to-r from-violet-600 via-fuchsia-500 to-pink-500 bg-clip-text text-transparent">
                   matters most
                 </span>
               </h1>
@@ -66,7 +66,7 @@ export function Hero() {
 
               {/* CTA Buttons */}
               <div className="flex flex-col sm:flex-row gap-4 pt-2">
-                <Button asChild size="lg" className="text-base px-8 h-12 rounded-full shadow-lg shadow-primary/25 hover:shadow-primary/40 transition-shadow">
+                <Button asChild size="lg" className="text-base px-8 h-12 rounded-full bg-gradient-to-r from-violet-600 to-fuchsia-600 hover:from-violet-700 hover:to-fuchsia-700 shadow-lg shadow-violet-500/30 hover:shadow-violet-500/50 transition-all duration-300 border-0">
                   <Link href={isAuthenticated ? "/tasks" : "/register"}>
                     {isAuthenticated ? "Go to Tasks" : "Start for Free"}
                     <ArrowRight className="ml-2 h-5 w-5" />
@@ -86,7 +86,7 @@ export function Hero() {
             <div className="relative hidden lg:block">
               <div className="relative">
                 {/* Glow effect */}
-                <div className="absolute -inset-4 bg-gradient-to-r from-primary/20 via-violet-500/20 to-primary/20 rounded-2xl blur-2xl opacity-50" />
+                <div className="absolute -inset-4 bg-gradient-to-r from-violet-500/25 via-fuchsia-500/20 to-pink-500/25 rounded-2xl blur-2xl opacity-60" />
 
                 {/* Mock App Window */}
                 <div className="relative rounded-2xl border bg-card/80 backdrop-blur-xl shadow-2xl overflow-hidden">

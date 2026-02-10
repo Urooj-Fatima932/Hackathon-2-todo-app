@@ -1,0 +1,347 @@
+openapi: 3.0.3
+info:
+  title: Agentic Chatbot API
+  description: API for AI-powered task management chatbot
+  version: 1.0.0
+  contact:
+    name: API Support
+
+servers:
+  - url: http://localhost:8000
+    description: Development server
+
+security:
+  - BearerAuth: []
+
+paths:
+  /api/chat:
+    post:
+      summary: Send chat message
+      description: Send a message to the AI assistant and receive a response with any tool calls made
+      operationId: sendChatMessage
+      tags:
+        - Chat
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChatRequest'
+            examples:
+              newConversation:
+                summary: Start new conversation
+                value:
+                  message: "Add a task to buy groceries"
+              existingConversation:
+                summary: Continue existing conversation
+                value:
+                  message: "What tasks do I have?"
+                  conversation_id: "123e4567-e89b-12d3-a456-426614174000"
+      responses:
+        '200':
+          description: Successful response from AI
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChatResponse'
+              examples:
+                taskCreated:
+                  summary: Task created
+                  value:
+                    response: "I've added 'Buy groceries' to your tasks!"
+                    conversation_id: "123e4567-e89b-12d3-a456-426614174000"
+                    tool_calls:
+                      - tool: "add_task"
+                        args:
+                          title: "Buy groceries"
+                        result:
+                          task_id: "abc123"
+                          status: "created"
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                detail: "Message must be 1-1000 characters"
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                detail: "Could not validate credentials"
+        '404':
+          description: Conversation not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                detail: "Conversation not found"
+        '504':
+          description: AI service timeout
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                detail: "AI service timeout. Please try again."
+
+  /api/conversations:
+    get:
+      summary: List conversations
+      description: Get all conversations for the authenticated user
+      operationId: listConversations
+      tags:
+        - Conversations
+      responses:
+        '200':
+          description: List of conversations
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConversationListResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/conversations/{conversation_id}:
+    get:
+      summary: Get conversation
+      description: Get a specific conversation with its messages
+      operationId: getConversation
+      tags:
+        - Conversations
+      parameters:
+        - name: conversation_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: Conversation ID
+      responses:
+        '200':
+          description: Conversation with messages
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConversationDetailResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Conversation not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    delete:
+      summary: Delete conversation
+      description: Delete a conversation and all its messages
+      operationId: deleteConversation
+      tags:
+        - Conversations
+      parameters:
+        - name: conversation_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: Conversation ID
+      responses:
+        '204':
+          description: Conversation deleted
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Conversation not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: JWT token from /api/auth/login
+
+  schemas:
+    ChatRequest:
+      type: object
+      required:
+        - message
+      properties:
+        message:
+          type: string
+          minLength: 1
+          maxLength: 1000
+          description: User's message to the AI assistant
+        conversation_id:
+          type: string
+          format: uuid
+          nullable: true
+          description: Existing conversation ID to continue, or null for new conversation
+
+    ChatResponse:
+      type: object
+      required:
+        - response
+        - conversation_id
+        - tool_calls
+      properties:
+        response:
+          type: string
+          description: AI assistant's response text
+        conversation_id:
+          type: string
+          format: uuid
+          description: Conversation ID (new or existing)
+        tool_calls:
+          type: array
+          items:
+            $ref: '#/components/schemas/ToolCall'
+          description: List of tools the AI called during processing
+
+    ToolCall:
+      type: object
+      required:
+        - tool
+        - args
+        - result
+      properties:
+        tool:
+          type: string
+          enum:
+            - add_task
+            - list_tasks
+            - get_task
+            - update_task
+            - complete_task
+            - delete_task
+          description: Name of the tool called
+        args:
+          type: object
+          description: Arguments passed to the tool
+        result:
+          type: object
+          description: Result returned by the tool
+
+    ConversationSummary:
+      type: object
+      required:
+        - id
+        - created_at
+        - updated_at
+      properties:
+        id:
+          type: string
+          format: uuid
+        title:
+          type: string
+          maxLength: 100
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    ConversationListResponse:
+      type: object
+      required:
+        - conversations
+        - total
+      properties:
+        conversations:
+          type: array
+          items:
+            $ref: '#/components/schemas/ConversationSummary'
+        total:
+          type: integer
+          minimum: 0
+
+    Message:
+      type: object
+      required:
+        - id
+        - role
+        - content
+        - created_at
+      properties:
+        id:
+          type: string
+          format: uuid
+        role:
+          type: string
+          enum:
+            - user
+            - assistant
+        content:
+          type: string
+          minLength: 1
+          maxLength: 10000
+        created_at:
+          type: string
+          format: date-time
+
+    ConversationDetailResponse:
+      type: object
+      required:
+        - id
+        - created_at
+        - updated_at
+        - messages
+      properties:
+        id:
+          type: string
+          format: uuid
+        title:
+          type: string
+          maxLength: 100
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+        messages:
+          type: array
+          items:
+            $ref: '#/components/schemas/Message'
+          description: Last 20 messages in chronological order
+
+    ErrorResponse:
+      type: object
+      required:
+        - detail
+      properties:
+        detail:
+          type: string
+          description: Error message
+
+tags:
+  - name: Chat
+    description: AI chat operations
+  - name: Conversations
+    description: Conversation management
