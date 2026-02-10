@@ -92,3 +92,50 @@ export interface UIState {
   isLoading: boolean;
   error: string | null;
 }
+
+// Chat Types
+
+export interface ChatRequest {
+  message: string;
+  conversation_id?: string;
+}
+
+export interface ToolCall {
+  tool: string;
+  args: Record<string, unknown>;
+  result: Record<string, unknown>;
+}
+
+export interface ChatResponse {
+  response: string;
+  conversation_id: string;
+  tool_calls: ToolCall[];
+}
+
+export interface ChatMessage {
+  id: string;
+  role: "user" | "assistant";
+  content: string;
+  created_at: string;
+  tool_calls?: ToolCall[];
+}
+
+export interface Conversation {
+  id: string;
+  title: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface ConversationListResponse {
+  conversations: Conversation[];
+  total: number;
+}
+
+export interface ConversationDetailResponse {
+  id: string;
+  title: string | null;
+  created_at: string;
+  updated_at: string;
+  messages: ChatMessage[];
+}

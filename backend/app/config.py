@@ -21,7 +21,13 @@ class Settings(BaseSettings):
 
     # CORS
     cors_origins: str = '["http://localhost:3000"]'
-    
+
+    # OpenRouter Configuration (for AI Chat)
+    openrouter_api_key: str = ""
+
+    # MCP Server Configuration
+    mcp_server_url: str = "http://localhost:8080/mcp"
+
     @property
     def cors_origins_list(self) -> List[str]:
         """Parse CORS origins from JSON string."""

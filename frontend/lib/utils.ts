@@ -47,3 +47,7 @@ export function formatRelativeTime(date: string | Date): string {
     return formatDate(d);
   }
 }
+
+export function formatDistanceToNow(date: string | Date): string {
+  return formatRelativeTime(date);
+}

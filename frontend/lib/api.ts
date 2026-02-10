@@ -5,6 +5,10 @@ import {
   TaskListResponse,
   ApiError,
   TaskFilter,
+  ChatRequest,
+  ChatResponse,
+  ConversationListResponse,
+  ConversationDetailResponse,
 } from "./types";
 
 const API_BASE_URL =
@@ -150,6 +154,28 @@ class ApiClient {
 
   async deleteTask(id: string): Promise<void> {
     return this.delete<void>(`/api/tasks/${id}`);
+  }
+
+  // Chat-specific methods (all require auth)
+
+  async sendMessage(message: string, conversationId?: string): Promise<ChatResponse> {
+    const request: ChatRequest = { message };
+    if (conversationId) {
+      request.conversation_id = conversationId;
+    }
+    return this.post<ChatResponse>("/api/chat", request);
+  }
+
+  async getConversations(): Promise<ConversationListResponse> {
+    return this.get<ConversationListResponse>("/api/conversations");
+  }
+
+  async getConversation(id: string): Promise<ConversationDetailResponse> {
+    return this.get<ConversationDetailResponse>(`/api/conversations/${id}`);
+  }
+
+  async deleteConversation(id: string): Promise<void> {
+    return this.delete<void>(`/api/conversations/${id}`);
   }
 }
 

@@ -1,0 +1,52 @@
+{{- if .Values.database.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "todo-chatbot.database.fullname" . }}
+  labels:
+    {{- include "todo-chatbot.database.labels" . | nindent 4 }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      {{- include "todo-chatbot.database.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "todo-chatbot.database.selectorLabels" . | nindent 8 }}
+    spec:
+      containers:
+        - name: postgres
+          image: postgres:15
+          ports:
+            - containerPort: {{ .Values.database.postgresql.service.port }}
+          env:
+            - name: POSTGRES_DB
+              value: {{ .Values.database.postgresql.auth.database | quote }}
+            - name: POSTGRES_USER
+              value: "postgres"
+            - name: POSTGRES_PASSWORD
+              value: {{ .Values.database.postgresql.auth.postgresPassword | quote }}
+          volumeMounts:
+            - name: postgres-db-volume
+              mountPath: /var/lib/postgresql/data
+      volumes:
+        - name: postgres-db-volume
+          emptyDir: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "todo-chatbot.database.fullname" . }}
+  labels:
+    {{- include "todo-chatbot.database.labels" . | nindent 4 }}
+spec:
+  type: ClusterIP
+  ports:
+    - port: {{ .Values.database.postgresql.service.port }}
+      targetPort: {{ .Values.database.postgresql.service.port }}
+      protocol: TCP
+      name: postgres
+  selector:
+    {{- include "todo-chatbot.database.selectorLabels" . | nindent 4 }}
+{{- end }}

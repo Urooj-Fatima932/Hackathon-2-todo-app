@@ -68,7 +68,22 @@
       "Bash(else echo \"No checklists directory\")",
       "Bash(fi)",
       "Bash(git add:*)",
-      "Bash(git commit -m \"$\\(cat <<''EOF''\nfeat: add full-stack todo app with JWT authentication\n\n- Backend: FastAPI with JWT auth, user registration/login\n- Frontend: Next.js 14 with Tailwind CSS, shadcn/ui components\n- Task management: CRUD operations with user ownership\n- Auth integration: Protected routes, token management\n\nCo-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>\nEOF\n\\)\")"
+      "Bash(git commit -m \"$\\(cat <<''EOF''\nfeat: add full-stack todo app with JWT authentication\n\n- Backend: FastAPI with JWT auth, user registration/login\n- Frontend: Next.js 14 with Tailwind CSS, shadcn/ui components\n- Task management: CRUD operations with user ownership\n- Auth integration: Protected routes, token management\n\nCo-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>\nEOF\n\\)\")",
+      "Bash(source:*)",
+      "Bash(uvicorn app.main:app:*)",
+      "Bash(tasklist //FI \"PID eq 7228\" //FO LIST)",
+      "Bash(tasklist:*)",
+      "Bash(cmd //c \"for /f \"\"tokens=5\"\" %a in \\(''netstat -ano ^| findstr :8000 ^| findstr LISTENING''\\) do taskkill /F /PID %a\")",
+      "Bash(cmd /c \"netstat -ano | findstr :8000 | findstr LISTENING\")",
+      "Bash(wsl --list:*)",
+      "Bash(netsh interface ipv4 show excludedportrange:*)",
+      "WebFetch(domain:openrouter.ai)",
+      "mcp__ide__getDiagnostics",
+      "WebFetch(domain:colorhunt.co)",
+      "WebFetch(domain:coolors.co)",
+      "WebFetch(domain:www.happyhues.co)",
+      "Bash(timeout:*)",
+      "WebFetch(domain:openai.github.io)"
     ]
   }
 }

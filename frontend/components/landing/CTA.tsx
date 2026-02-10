@@ -6,7 +6,7 @@ export function CTA() {
   return (
     <section className="py-20 md:py-28 lg:py-32">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-primary to-primary/80 px-8 py-16 text-center shadow-2xl sm:px-16 md:py-20">
+        <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-violet-600 via-fuchsia-600 to-pink-600 px-8 py-16 text-center shadow-2xl shadow-violet-500/25 sm:px-16 md:py-20">
           {/* Content */}
           <div className="relative z-10 mx-auto max-w-3xl">
             <h2 className="mb-4 text-3xl font-bold text-primary-foreground sm:text-4xl md:text-5xl">
