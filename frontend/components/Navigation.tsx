@@ -23,7 +23,7 @@ export function Navigation() {
               <CheckSquare className="h-6 w-6 text-violet-600 dark:text-violet-400" />
             </div>
             <span className="bg-gradient-to-r from-violet-600 to-fuchsia-600 dark:from-violet-400 dark:to-fuchsia-400 bg-clip-text text-transparent">
-              Todo App
+              Flux
             </span>
           </Link>
 

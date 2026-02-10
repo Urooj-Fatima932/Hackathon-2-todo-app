@@ -11,10 +11,10 @@ const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
   title: {
-    default: "Todo App",
-    template: "%s | Todo App",
+    default: "Flux",
+    template: "%s | Flux",
   },
-  description: "A modern todo application built with Next.js",
+  description: "A modern task management application built with Next.js",
 };
 
 export default function RootLayout({

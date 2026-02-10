@@ -1,7 +1,10 @@
 {
   "permissions": {
     "allow": [
-      "Bash(dir /b \"C:\\\\Users\\\\Saqlain\\\\OneDrive\\\\Desktop\\\\hackathon 2 try 2\\\\backend\")"
+      "Bash(dir /b \"C:\\\\Users\\\\Saqlain\\\\OneDrive\\\\Desktop\\\\hackathon 2 try 2\\\\backend\")",
+      "WebSearch",
+      "WebFetch(domain:pypi.org)",
+      "WebFetch(domain:openai.github.io)"
     ]
   }
 }

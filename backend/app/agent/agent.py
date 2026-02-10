@@ -6,8 +6,8 @@ Uses native function tools for task operations.
 import os
 from typing import Optional
 from dotenv import load_dotenv
-from agents import Agent, Runner, AsyncOpenAI, OpenAIChatCompletionsModel
-from agents.run import RunConfig
+from agents import Agent, Runner, RunConfig
+from agents.extensions.models.litellm_model import LitellmModel
 from sqlmodel import Session, select
 
 from app.agent.tools import ALL_TOOLS, UserContext
@@ -16,17 +16,13 @@ from app.models import Task
 load_dotenv()
 openrouter_api_key = os.getenv("OPENROUTER_API_KEY")
 
-external_client = AsyncOpenAI(
-    base_url="https://openrouter.ai/api/v1",
+# Configure model using LiteLLM for OpenRouter compatibility
+model = LitellmModel(
+    model="openrouter/nvidia/nemotron-3-nano-30b-a3b:free",
     api_key=openrouter_api_key,
-)
-model = OpenAIChatCompletionsModel(
-    model="nvidia/nemotron-3-nano-30b-a3b:free",
-    openai_client=external_client
 )
 config = RunConfig(
     model=model,
-    model_provider=external_client,
     tracing_disabled=True
 )
 

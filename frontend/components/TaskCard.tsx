@@ -65,7 +65,7 @@ export function TaskCard({ task, onUpdate, onDelete }: TaskCardProps) {
 
   return (
     <>
-      <Card className="card-gradient task-card-hover border-l-4 border-l-primary/30">
+      <Card className="card-gradient task-card-hover border-l-4 border-l-violet-500/40 dark:border-l-violet-400/40">
         <CardContent className="p-6">
           <div className="flex items-start gap-4">
             {/* Checkbox */}
