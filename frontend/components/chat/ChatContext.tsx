@@ -26,9 +26,6 @@ import { ChatMessage, Conversation, ToolCall } from "@/lib/types";
 import { ChatSidebar } from "./ChatSidebar";
 import { useAuth } from "@/lib/auth/context";
 
-// Task-related tool names that should trigger a refresh
-const TASK_TOOLS = ["add_task", "delete_task", "complete_task", "update_task", "task_change_detected"];
-
 // Event listener type for task changes
 type TaskChangeListener = () => void;
 
@@ -184,10 +181,8 @@ export function ChatProvider({ children }: ChatProviderProps) {
 
   // Notify all task change listeners
   const notifyTaskChange = useCallback(() => {
-    console.log(`[ChatContext] Notifying ${taskChangeListeners.current.size} task change listeners`);
-    taskChangeListeners.current.forEach((listener, index) => {
+    taskChangeListeners.current.forEach((listener) => {
       try {
-        console.log(`[ChatContext] Calling task change listener ${index}`);
         listener();
       } catch (err) {
         console.error("Task change listener error:", err);
@@ -238,24 +233,9 @@ export function ChatProvider({ children }: ChatProviderProps) {
         setLastToolCalls(response.tool_calls);
         setLastFailedMessage(null);
 
-        // Check if any task-related tools were called and notify listeners
-        console.log("[ChatContext] Tool calls received:", response.tool_calls);
-        const hasTaskChanges = response.tool_calls?.some((tc) =>
-          TASK_TOOLS.includes(tc.tool)
-        );
-        console.log("[ChatContext] Has task changes:", hasTaskChanges);
-        if (hasTaskChanges) {
-          // Wait slightly longer to ensure backend has committed the changes
-          console.log("[ChatContext] Notifying task change listeners...");
-          // Use a longer delay and ensure the UI update happens after the response is processed
-          setTimeout(() => {
-            notifyTaskChange();
-          }, 500); // Increased delay to ensure backend persistence
-          
-          // Also try to notify immediately in case the timeout doesn't work as expected
-          setTimeout(() => {
-            notifyTaskChange();
-          }, 1000); // Second attempt after 1 second
+        // Notify task list to refresh if backend reports any task changes
+        if (response.tasks_changed) {
+          notifyTaskChange();
         }
       } catch (err: unknown) {
         // Remove optimistic user message on error

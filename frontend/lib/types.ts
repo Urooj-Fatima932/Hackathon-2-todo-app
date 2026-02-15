@@ -110,6 +110,7 @@ export interface ChatResponse {
   response: string;
   conversation_id: string;
   tool_calls: ToolCall[];
+  tasks_changed: boolean;
 }
 
 export interface ChatMessage {

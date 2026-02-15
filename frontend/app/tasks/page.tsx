@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useCallback, useReducer } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -32,9 +32,6 @@ export default function TasksPage() {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isCreateOpen, setIsCreateOpen] = useState(false);
-  
-  // Force re-render when task changes happen
-  const [, forceUpdate] = useReducer(x => x + 1, 0);
 
   const fetchTasks = useCallback(async () => {
     try {
@@ -51,30 +48,11 @@ export default function TasksPage() {
 
   // Subscribe to task changes from chat (real-time UI updates)
   useEffect(() => {
-    console.log("[TasksPage] Subscribing to task changes");
     const unsubscribe = onTaskChange(() => {
-      // Refresh tasks when chatbot creates/updates/deletes tasks
-      console.log("[TasksPage] Task change detected, refreshing...");
-      fetchTasks().then(() => {
-        // Force a re-render to ensure UI updates
-        console.log("[TasksPage] Forcing re-render after task change");
-        forceUpdate();
-      });
+      fetchTasks();
     });
-    
-    // Log the unsubscribe function to ensure it's properly returned
-    console.log("[TasksPage] Subscription created, unsubscribe function ready");
-    
-    return () => {
-      console.log("[TasksPage] Unsubscribing from task changes");
-      unsubscribe();
-    };
-  }, [onTaskChange, fetchTasks, forceUpdate]);
-
-  // Additional debug effect to track component lifecycle
-  useEffect(() => {
-    console.log("[TasksPage] Component mounted/re-rendered");
-  }, []);
+    return () => unsubscribe();
+  }, [onTaskChange, fetchTasks]);
 
   // Redirect to login if not authenticated
   useEffect(() => {

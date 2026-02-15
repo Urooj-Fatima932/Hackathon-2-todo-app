@@ -98,7 +98,7 @@ async def run_agent(
     db: Session,
     message: str,
     history: Optional[list[dict]] = None
-) -> tuple[str, list[dict]]:
+) -> tuple[str, list[dict], bool]:
     """Run the TaskBot agent with user context and message history.
 
     Implements the 9-step stateless conversation flow:
@@ -119,10 +119,12 @@ async def run_agent(
         history: Previous messages in OpenAI format [{"role": "...", "content": "..."}]
 
     Returns:
-        Tuple of (assistant_response, tool_calls_made)
+        Tuple of (assistant_response, tool_calls_made, tasks_changed)
     """
-    # Count tasks before agent runs to detect changes
-    task_count_before = len(db.exec(select(Task).where(Task.user_id == user_id)).all())
+    # Snapshot task states before agent runs to detect any changes (add/delete/update/complete)
+    tasks_before = db.exec(select(Task).where(Task.user_id == user_id)).all()
+    task_count_before = len(tasks_before)
+    task_states_before = {t.id: (t.title, t.is_completed, str(t.updated_at)) for t in tasks_before}
     
     # Create agent with tools
     agent = Agent(
@@ -161,78 +163,44 @@ async def run_agent(
         run_config=config
     )
 
-    # Count tasks after agent runs to detect changes
-    task_count_after = len(db.exec(select(Task).where(Task.user_id == user_id)).all())
-    
+    # Snapshot task states after agent runs to detect any changes
+    tasks_after = db.exec(select(Task).where(Task.user_id == user_id)).all()
+    task_count_after = len(tasks_after)
+    task_states_after = {t.id: (t.title, t.is_completed, str(t.updated_at)) for t in tasks_after}
+
+    # Detect changes: count difference (add/delete) OR state difference (update/complete)
+    tasks_changed = (
+        task_count_before != task_count_after
+        or task_states_before != task_states_after
+    )
+
     # Collect tool calls made during execution
     tool_calls = []
-    print(f"[Agent] Result type: {type(result)}")
-    print(f"[Agent] Result attributes: {dir(result)}")
-    
-    # Debug the result object
-    print(f"[Agent] Result: {result}")
-    
-    # Different ways the result might contain tool calls depending on the agent library version
-    if hasattr(result, 'tool_calls') and result.tool_calls:
-        # Direct tool_calls attribute
-        print(f"[Agent] Found direct tool_calls: {result.tool_calls}")
-        for tc in result.tool_calls:
-            tool_calls.append({
-                "tool": getattr(tc, 'name', str(tc)) if tc else "",
-                "args": getattr(tc, 'arguments', {}) if tc else {},
-                "result": {}
-            })
-    elif hasattr(result, 'new_items'):
-        print(f"[Agent] new_items count: {len(result.new_items)}")
-        for i, item in enumerate(result.new_items):
-            print(f"[Agent] Item {i}: type={type(item)}, attrs={dir(item)}")
-            if hasattr(item, 'type'):
-                print(f"[Agent] Item {i} type value: {item.type}")
-            # Check for tool call items
+
+    if hasattr(result, 'new_items'):
+        for item in result.new_items:
+            # Function call items
             if hasattr(item, 'type') and item.type == 'function_call':
                 tool_calls.append({
-                    "tool": item.name if hasattr(item, 'name') else str(item),
-                    "args": item.arguments if hasattr(item, 'arguments') else {},
+                    "tool": getattr(item, 'name', str(item)),
+                    "args": getattr(item, 'arguments', {}),
                     "result": {}
                 })
-            # Also check for tool_calls attribute (legacy format)
-            elif hasattr(item, 'tool_calls') and item.tool_calls:
-                for tc in item.tool_calls:
-                    tool_calls.append({
-                        "tool": tc.name if hasattr(tc, 'name') else str(tc),
-                        "args": tc.arguments if hasattr(tc, 'arguments') else {},
-                        "result": {}
-                    })
-            # Check for function call results
+            # Function call output items - attach result to the last tool call
             elif hasattr(item, 'type') and item.type == 'function_call_output':
-                # Find matching tool call and add result
                 if tool_calls and hasattr(item, 'output'):
                     tool_calls[-1]["result"] = item.output if isinstance(item.output, dict) else {"output": str(item.output)}
-    else:
-        # Check if result has any attributes that might contain tool call info
-        for attr_name in dir(result):
-            if 'tool' in attr_name.lower() or 'call' in attr_name.lower():
-                attr_value = getattr(result, attr_name)
-                print(f"[Agent] Found potential tool-related attribute '{attr_name}': {attr_value}")
-    
-    # Determine if tasks were modified (added, updated, or deleted)
-    tasks_changed = task_count_before != task_count_after
-    
-    # If no tool calls were reported but tasks changed, add a generic task change indicator
+
+    # Fallback: if no tool calls were parsed but task state changed, report it
     if not tool_calls and tasks_changed:
-        print(f"[Agent] Tasks changed ({task_count_before} -> {task_count_after}) but no tool calls reported, adding generic indicator")
         tool_calls = [{
             "tool": "task_change_detected",
-            "args": {"change_type": "unknown", "before_count": task_count_before, "after_count": task_count_after},
+            "args": {},
             "result": {"message": "Task state changed"}
         }]
-    elif tasks_changed and tool_calls:
-        print(f"[Agent] Tasks changed ({task_count_before} -> {task_count_after}) and tool calls were reported: {tool_calls}")
-    
-    print(f"[Agent] Final tool_calls: {tool_calls}")
 
     # Step 8: Return response (step 9 is automatic - no state retained)
-    return result.final_output, tool_calls
+    return result.final_output, tool_calls, tasks_changed
 
 
 # Synchronous version for compatibility
@@ -241,7 +209,7 @@ def run_agent_sync(
     db: Session,
     message: str,
     history: Optional[list[dict]] = None
-) -> tuple[str, list[dict]]:
+) -> tuple[str, list[dict], bool]:
     """Synchronous wrapper for run_agent."""
     import asyncio
 

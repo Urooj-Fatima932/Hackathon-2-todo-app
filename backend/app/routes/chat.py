@@ -155,7 +155,7 @@ async def send_chat_message(
     # └─────────────────────────────────────────────────────────────────────┘
     # Agent receives full history + new message, invokes tools as needed
     try:
-        response_text, tool_calls_raw = await asyncio.wait_for(
+        response_text, tool_calls_raw, tasks_changed = await asyncio.wait_for(
             run_agent(
                 user_id=current_user.id,
                 db=session,
@@ -213,7 +213,8 @@ async def send_chat_message(
     return ChatResponse(
         response=response_text,
         conversation_id=conversation.id,
-        tool_calls=tool_calls
+        tool_calls=tool_calls,
+        tasks_changed=tasks_changed
     )
 
 

@@ -83,7 +83,10 @@
       "WebFetch(domain:coolors.co)",
       "WebFetch(domain:www.happyhues.co)",
       "Bash(timeout:*)",
-      "WebFetch(domain:openai.github.io)"
+      "WebFetch(domain:openai.github.io)",
+      "Bash(npx next dev -p 3000)",
+      "Bash(pip show:*)",
+      "Bash(pip check:*)"
     ]
   }
 }

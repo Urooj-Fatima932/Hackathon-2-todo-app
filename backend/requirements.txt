@@ -9,7 +9,7 @@ python-multipart==0.0.12
 passlib[bcrypt]==1.7.4
 pydantic[email]>=2.12.3,<3.0.0
 openai-agents>=0.0.7
-openai>=1.50.0
+openai>=2.9.0,<3.0.0
 httpx>=0.25.0
 python-dotenv>=1.0.0
 litellm>=1.40.0

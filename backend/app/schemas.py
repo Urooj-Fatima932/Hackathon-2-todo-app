@@ -88,6 +88,7 @@ class ChatResponse(BaseModel):
     response: str = Field(description="AI assistant's response")
     conversation_id: str = Field(description="Conversation ID for continuity")
     tool_calls: list[ToolCall] = Field(default=[], description="Tools called during processing")
+    tasks_changed: bool = Field(default=False, description="Whether tasks were modified during this request")
 
 
 class MessageResponse(BaseModel):
