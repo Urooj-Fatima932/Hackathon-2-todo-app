@@ -1,18 +1,22 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
-import { CheckSquare, LogOut } from "lucide-react";
+import { CheckSquare, LogOut, Menu, X } from "lucide-react";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/lib/auth/context";
 
 export function Navigation() {
   const { isAuthenticated, user, logout, isLoading } = useAuth();
+  const [mobileOpen, setMobileOpen] = useState(false);
 
   const handleLogout = () => {
     logout();
     window.location.href = "/";
   };
+
+  const closeMobile = () => setMobileOpen(false);
 
   return (
     <nav className="border-b bg-background/80 backdrop-blur-md sticky top-0 z-50">
@@ -27,7 +31,8 @@ export function Navigation() {
             </span>
           </Link>
 
-          <div className="flex items-center gap-4">
+          {/* Desktop nav */}
+          <div className="hidden sm:flex items-center gap-4">
             <Link
               href="/"
               className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors"
@@ -45,7 +50,7 @@ export function Navigation() {
                 >
                   Tasks
                 </Link>
-                <span className="text-sm text-muted-foreground hidden sm:inline">
+                <span className="text-sm text-muted-foreground hidden md:inline truncate max-w-[160px]">
                   {user?.email}
                 </span>
                 <Button variant="ghost" size="sm" onClick={handleLogout}>
@@ -66,8 +71,61 @@ export function Navigation() {
 
             <ThemeToggle />
           </div>
+
+          {/* Mobile hamburger */}
+          <div className="flex sm:hidden items-center gap-2">
+            <ThemeToggle />
+            <Button variant="ghost" size="icon" onClick={() => setMobileOpen(!mobileOpen)}>
+              {mobileOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+            </Button>
+          </div>
         </div>
       </div>
+
+      {/* Mobile menu */}
+      {mobileOpen && (
+        <div className="sm:hidden border-t bg-background/95 backdrop-blur-md">
+          <div className="container mx-auto px-4 py-4 space-y-3">
+            <Link
+              href="/"
+              onClick={closeMobile}
+              className="block text-sm font-medium text-muted-foreground hover:text-primary transition-colors py-2"
+            >
+              Home
+            </Link>
+
+            {isLoading ? (
+              <div className="h-4 w-16 bg-muted animate-pulse rounded"></div>
+            ) : isAuthenticated ? (
+              <>
+                <Link
+                  href="/tasks"
+                  onClick={closeMobile}
+                  className="block text-sm font-medium text-muted-foreground hover:text-primary transition-colors py-2"
+                >
+                  Tasks
+                </Link>
+                <p className="text-sm text-muted-foreground truncate py-2">
+                  {user?.email}
+                </p>
+                <Button variant="ghost" size="sm" className="w-full justify-start" onClick={() => { handleLogout(); closeMobile(); }}>
+                  <LogOut className="h-4 w-4 mr-2" />
+                  Logout
+                </Button>
+              </>
+            ) : (
+              <div className="flex flex-col gap-2">
+                <Link href="/login" onClick={closeMobile}>
+                  <Button variant="ghost" size="sm" className="w-full">Sign in</Button>
+                </Link>
+                <Link href="/register" onClick={closeMobile}>
+                  <Button size="sm" className="w-full">Sign up</Button>
+                </Link>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
     </nav>
   );
 }

@@ -66,59 +66,59 @@ export function TaskCard({ task, onUpdate, onDelete }: TaskCardProps) {
   return (
     <>
       <Card className="card-gradient task-card-hover border-l-4 border-l-violet-500/40 dark:border-l-violet-400/40">
-        <CardContent className="p-6">
-          <div className="flex items-start gap-4">
+        <CardContent className="p-4 sm:p-6">
+          <div className="flex items-start gap-3 sm:gap-4">
             {/* Checkbox */}
             <Checkbox
               checked={task.is_completed}
               onCheckedChange={handleToggle}
               disabled={isPending}
-              className="mt-1"
+              className="mt-1 flex-shrink-0"
             />
 
             {/* Content */}
             <div className="flex-1 min-w-0">
-              <h3
-                className={`text-lg font-semibold mb-1 ${
-                  task.is_completed ? "line-through text-muted-foreground" : ""
-                }`}
-              >
-                {task.title}
-              </h3>
-              {task.description && (
-                <p
-                  className={`text-sm mb-2 ${
-                    task.is_completed ? "text-muted-foreground" : "text-muted-foreground"
+              <div className="flex items-start justify-between gap-2">
+                <h3
+                  className={`text-base sm:text-lg font-semibold mb-1 break-words ${
+                    task.is_completed ? "line-through text-muted-foreground" : ""
                   }`}
                 >
+                  {task.title}
+                </h3>
+
+                {/* Actions */}
+                <div className="flex gap-1 flex-shrink-0">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-8 w-8"
+                    onClick={() => setIsEditOpen(true)}
+                    disabled={isPending}
+                  >
+                    <Pencil className="h-4 w-4" />
+                    <span className="sr-only">Edit task</span>
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-8 w-8"
+                    onClick={() => setIsDeleteOpen(true)}
+                    disabled={isPending}
+                  >
+                    <Trash2 className="h-4 w-4 text-destructive" />
+                    <span className="sr-only">Delete task</span>
+                  </Button>
+                </div>
+              </div>
+              {task.description && (
+                <p className="text-sm mb-2 text-muted-foreground break-words">
                   {task.description}
                 </p>
               )}
               <p className="text-xs text-muted-foreground">
                 {formatRelativeTime(task.created_at)}
               </p>
-            </div>
-
-            {/* Actions */}
-            <div className="flex gap-2">
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => setIsEditOpen(true)}
-                disabled={isPending}
-              >
-                <Pencil className="h-4 w-4" />
-                <span className="sr-only">Edit task</span>
-              </Button>
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => setIsDeleteOpen(true)}
-                disabled={isPending}
-              >
-                <Trash2 className="h-4 w-4 text-destructive" />
-                <span className="sr-only">Delete task</span>
-              </Button>
             </div>
           </div>
         </CardContent>

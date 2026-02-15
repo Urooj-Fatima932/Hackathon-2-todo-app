@@ -67,9 +67,9 @@ export function ChatWidget() {
 
   // Expanded widget
   return (
-    <div className="fixed bottom-6 right-6 w-96 h-[600px] bg-white dark:bg-gray-900 rounded-2xl shadow-2xl shadow-violet-500/10 flex flex-col z-50 border border-gray-200 dark:border-gray-700 overflow-hidden">
+    <div className="fixed bottom-0 right-0 w-full h-full sm:bottom-6 sm:right-6 sm:w-96 sm:h-[600px] sm:rounded-2xl bg-white dark:bg-gray-900 shadow-2xl shadow-violet-500/10 flex flex-col z-50 border border-gray-200 dark:border-gray-700 overflow-hidden">
       {/* Header */}
-      <div className="flex items-center justify-between px-4 py-3 bg-gradient-to-r from-violet-600 to-fuchsia-600 text-white rounded-t-2xl">
+      <div className="flex items-center justify-between px-4 py-3 bg-gradient-to-r from-violet-600 to-fuchsia-600 text-white sm:rounded-t-2xl">
         <div className="flex items-center gap-2">
           {(conversationId || messages.length > 0) && !showConversations && (
             <button

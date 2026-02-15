@@ -154,22 +154,22 @@ export function Hero() {
       </div>
 
       {/* Stats Section - Full Width */}
-      <div className="border-t bg-muted/30 backdrop-blur-sm mt-[100px]">
+      <div className="border-t bg-muted/30 backdrop-blur-sm mt-12 sm:mt-[100px]">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 py-8">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 sm:gap-8 py-8">
             {[
               { icon: Users, value: "10K+", label: "Active Users" },
               { icon: CheckCircle, value: "50K+", label: "Tasks Completed" },
               { icon: Clock, value: "99.9%", label: "Uptime" },
               { icon: Zap, value: "<100ms", label: "Response Time" },
             ].map(({ icon: Icon, value, label }) => (
-              <div key={label} className="flex items-center gap-4">
-                <div className="p-3 rounded-xl bg-primary/10">
-                  <Icon className="w-6 h-6 text-primary" />
+              <div key={label} className="flex items-center gap-3 sm:gap-4">
+                <div className="p-2 sm:p-3 rounded-xl bg-primary/10 flex-shrink-0">
+                  <Icon className="w-5 h-5 sm:w-6 sm:h-6 text-primary" />
                 </div>
                 <div>
-                  <div className="text-2xl font-bold">{value}</div>
-                  <div className="text-sm text-muted-foreground">{label}</div>
+                  <div className="text-xl sm:text-2xl font-bold">{value}</div>
+                  <div className="text-xs sm:text-sm text-muted-foreground">{label}</div>
                 </div>
               </div>
             ))}
